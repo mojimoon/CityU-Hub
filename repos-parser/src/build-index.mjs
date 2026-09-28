@@ -6,6 +6,7 @@ import { aggregateProjects } from './lib/aggregate.js';
 import { createGithubClient, parseRepoUrl } from './lib/github.js';
 import { analyzeReadme, fillProjectContent, guessTagsFromReadme } from './lib/markdown.js';
 import { slugify } from './lib/slug.js';
+import { sanitizeReadmeHtml } from './lib/sanitize.js';
 import { loadConfig } from './config.js';
 import { parseFrontmatterDocument } from './lib/frontmatter.js';
 
@@ -21,18 +22,9 @@ async function writeJson(file, value) {
   await fs.writeFile(file, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
 }
 
-/** 去掉脚本、内联事件与 javascript: 链接，README 渲染结果只保留安全的 HTML */
-function scrubHtml(html) {
-  return html
-    .replace(/<(script|style|iframe|object|embed|form)\b[\s\S]*?<\/\1>/gi, '')
-    .replace(/<\/?(script|style|iframe|object|embed|form)\b[^>]*>/gi, '')
-    .replace(/\son[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
-    .replace(/(href|src)\s*=\s*(["'])\s*javascript:[^"']*\2/gi, '$1="#"');
-}
-
 /** Markdown → HTML，详情页直接渲染，前端无需再引 markdown 依赖 */
 export function renderReadmeHtml(markdown) {
-  return scrubHtml(String(marked.parse(markdown ?? '')));
+  return sanitizeReadmeHtml(String(marked.parse(markdown ?? '')));
 }
 
 function canonicalRepoUrl(url) {
