@@ -6,3 +6,6 @@ dist/
 
 # Vercel CLI 在本地 link 项目时生成
 .vercel/
+
+# repos-parser 生成的静态数据，每次构建重新生成，不入库
+web/public/data/
