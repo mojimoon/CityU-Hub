@@ -205,7 +205,7 @@ export function ProjectDetailPage() {
               </h2>
               <div
                 className="prose-readme mt-5"
-                // mock 阶段直接渲染本地数据里的 README 片段
+                // README 由 repos-parser 渲染并做过白名单消毒，这里可以直接注入
                 dangerouslySetInnerHTML={{
                   __html: project.readmeHtml ?? '<p>该项目暂无 README 内容。</p>',
                 }}
