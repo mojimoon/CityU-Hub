@@ -47,3 +47,23 @@ test('只放行 http(s) 与 mailto 链接', () => {
   assert.match(html, /href="https:\/\/ok\.test"/);
   assert.match(html, /href="mailto:a@b\.test"/);
 });
+
+test('外链新窗口打开并带 noopener，站内锚点保持原样', () => {
+  const html = renderReadmeHtml('[ext](https://ok.test) [top](#top)');
+  assert.match(html, /<a href="https:\/\/ok\.test" target="_blank" rel="noopener noreferrer">ext<\/a>/);
+  assert.match(html, /<a href="#top">top<\/a>/);
+});
+
+test('相对链接与图片解析到源仓库', () => {
+  const source = { owner: 'o', repo: 'r', branch: 'main' };
+  const html = renderReadmeHtml('[doc](docs/a.md) [root](/LICENSE)\n\n![shot](./img/a.png)', source);
+  assert.match(html, /href="https:\/\/github\.com\/o\/r\/blob\/main\/docs\/a\.md"/);
+  assert.match(html, /href="https:\/\/github\.com\/o\/r\/blob\/main\/LICENSE"/);
+  assert.match(html, /src="https:\/\/raw\.githubusercontent\.com\/o\/r\/main\/img\/a\.png"/);
+  assert.match(html, /loading="lazy"/);
+});
+
+test('没有默认分支信息时回退到 HEAD', () => {
+  const html = renderReadmeHtml('![x](a.png)', { owner: 'o', repo: 'r' });
+  assert.match(html, /raw\.githubusercontent\.com\/o\/r\/HEAD\/a\.png/);
+});

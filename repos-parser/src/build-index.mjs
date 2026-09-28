@@ -23,8 +23,8 @@ async function writeJson(file, value) {
 }
 
 /** Markdown → HTML，详情页直接渲染，前端无需再引 markdown 依赖 */
-export function renderReadmeHtml(markdown) {
-  return sanitizeReadmeHtml(String(marked.parse(markdown ?? '')));
+export function renderReadmeHtml(markdown, source = null) {
+  return sanitizeReadmeHtml(String(marked.parse(markdown ?? '')), source);
 }
 
 function canonicalRepoUrl(url) {
@@ -90,7 +90,11 @@ async function buildProject(meta, content, fileName, github, useOffline, fileDat
     createdAt: toDate(githubMeta?.createdAt, fileDate),
     updatedAt: toDate(githubMeta?.pushedAt, fileDate),
     status: meta.status,
-    readmeHtml: renderReadmeHtml(enrichedContent),
+    readmeHtml: renderReadmeHtml(enrichedContent, {
+      owner: ref.owner,
+      repo: ref.repo,
+      branch: githubMeta?.defaultBranch,
+    }),
   };
 }
 
